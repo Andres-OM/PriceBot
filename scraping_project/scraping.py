@@ -121,9 +121,9 @@ cursor = connection.cursor()
 #Conexión a la BBDD y obtención de datos tienda 
 
 connection = mysql.connector.connect(
-    host="192.168.56.56",
-    user="homestead",
-    password="secret",
+    host="127.0.0.1",
+    user="root",
+    password="1234",
     database="todofriki"
 )
 
