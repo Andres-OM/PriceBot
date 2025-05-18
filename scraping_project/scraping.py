@@ -4,12 +4,12 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from woocommerce import API
+"""from woocommerce import API"""
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
-from sshtunnel import SSHTunnelForwarder
+"""from sshtunnel import SSHTunnelForwarder"""
 import mysql.connector
 import os
-import mysql.connector
+"""import mysql.connector"""
 
 #____________________________________________________________
 def normalizar_sku(sku):
@@ -184,13 +184,14 @@ print(f"Cantidad total de productos en stock: {len(all_products)}")
 
 #_____________________________________________________________________________________________________________________________________________________________________
 # API para obtener datos de la web
+"""
 wcapi = API(
     url="https://www.todofriki.com/",
     consumer_key="ck_3bf24cf1d674461c64f1b0c26e5e0e105f55286a",
     consumer_secret="cs_2add26f1d0c52e8c8afa0c1488660766311959df",
     version="wc/v3"
 )
-
+"""
 #RECORRER PRODUCTOS
 #Todo
 """
