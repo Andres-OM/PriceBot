@@ -52,6 +52,7 @@ class PrecioComparadoResource extends Resource
                         return $shortenedName;
                     }),
                 TextColumn::make('precioTodofriki')
+                    ->label('Precio Pricebot')
                     ->sortable(),
                 TextColumn::make('precioMasBajo')
                     ->sortable(),
@@ -70,7 +71,7 @@ class PrecioComparadoResource extends Resource
                 Action::make('ajustarPrecioIndividual')
                     ->label('Ajustar Precio')
                     ->button()
-                    ->tooltip('El precio de TodoFriki cambia al precio más bajo comparado en caso de ser superior al precio de base.') 
+                    ->tooltip('El precio de Pricebot cambia al precio más bajo comparado en caso de ser superior al precio de base.') 
                     ->action(function ($record, $data) {
                         $precioMasBajo = $record->precioMasBajo;
                         $ean = $record->ean;

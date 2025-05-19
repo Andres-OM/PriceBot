@@ -26,7 +26,7 @@ def obtener_precio_tienda(driver,url, nombre_precio, sku):
             sku = normalizar_sku(sku)
             driver.get(url+sku) 
             #Si el título tiene el mensaje de error de AMAZON devuelve no encontrado, pero si no realiza la búsqueda
-            mensaje = WebDriverWait(driver, 0).until(EC.presence_of_element_located((By.TAG_NAME, 'h1'))).text
+            mensaje = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.TAG_NAME, 'h1'))).text
             if mensaje == 'Utilice menos palabras clave o pruebe con estas':
                 precio = "No encontrado"
             else:
@@ -37,23 +37,18 @@ def obtener_precio_tienda(driver,url, nombre_precio, sku):
                 precio = precio_elemento.text.replace('\n', '.').strip()
                 precio = precio.replace(',', '.')
                 precio = precio.replace("€", "") 
-        elif url.startswith("https://www.dynos"):
-            #Comprobación de DYNOS quitando el 0 que sobra y obteniendo de forma personalizada el precio
-            driver.get(url+sku) 
-            precio_elemento = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, nombre_precio))).text
-            precio = precio_elemento.replace(',', '.')
-            precio = precio.replace("€", "")
         elif url.startswith("https://comicstores"):
             driver.get(url + sku)
             precio_elemento = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.CSS_SELECTOR, "p.precio strong"))).text
             print(precio_elemento)
             precio = precio_elemento.replace(',', '.').replace('€', '').strip()
-        elif url.startswith("https://www.game"):
-            sku = normalizar_sku(sku)
-            driver.get(url + sku)
-            parte_entera = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "int"))).text.strip()
-            parte_decimal = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "decimal"))).text.strip().replace("'", "") 
-            precio = f"{parte_entera}.{parte_decimal}"         
+        elif url.startswith("https://www.toysrus.es"):
+            sku_busqueda = normalizar_sku(sku)
+            driver.get(url + sku_busqueda)
+            precio_elemento = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, nombre_precio)))
+            precio_texto_crudo = precio_elemento.text 
+            precio_limpio = precio_texto_crudo.replace('€', '').replace('\xa0', '').replace(',', '.').strip() 
+            precio = precio_limpio
         else:
             driver.get(url+sku) 
             precio_elemento = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, nombre_precio)))

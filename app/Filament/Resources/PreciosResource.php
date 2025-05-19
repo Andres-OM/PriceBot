@@ -59,7 +59,7 @@ class PreciosResource extends Resource
                 ->formatStateUsing(function ($state, $record) {
                 $productNameSlug = strtolower(str_replace(' ', '-', $state));
                 $productNameSlug = Str::slug($productNameSlug, '-'); 
-                $url = "https://www.todofriki.com/producto/{$productNameSlug}";
+                $url = "https://www.pricebot.com/producto/{$productNameSlug}";
                 return '<a href="'. htmlspecialchars($url) .'" target="_blank" style="color: #1a73e8;">'. (strlen($state) > 40 ? substr($state, 0, 40) . '...' : $state) .'</a>';
                 })
                 ->html(),
@@ -71,7 +71,7 @@ class PreciosResource extends Resource
             TextColumn::make('precios_concatenados')
                 ->html()
                 ->label('Precio registro')
-                ->tooltip('El precio de Todofriki se muestra en verde si es el más bajo, y en rojo si cualquier otro precio es más bajo.')
+                ->tooltip('El precio de Pricebot se muestra en verde si es el más bajo, y en rojo si cualquier otro precio es más bajo.')
                 ->formatStateUsing(function ($state) {
                     $lines = explode(', ', $state);
                     $prices = collect($lines)->mapWithKeys(function ($line) {
@@ -81,6 +81,13 @@ class PreciosResource extends Resource
             
                     $todofrikiPrice = $prices->get('Todofriki', 0); // Obtener el precio de Todofriki, o 0 si no está definido
                     $otherPrices = $prices->except(['Todofriki']); // Excluir a Todofriki para calcular los precios de otras tiendas
+
+                    // Cambiar nombre'Todofriki', lo renombramos a 'PriceBot' y guardamos su precio
+                    if ($prices->has('Todofriki')) {
+                        $priceBotPrice = $prices->get('Todofriki');
+                        $prices->put('PriceBot', $priceBotPrice); // Añadimos PriceBot con el mismo precio
+                        $prices->forget('Todofriki'); // Eliminamos la clave original 'Todofriki'
+                    }
                     
                     $minPrice = $otherPrices->min(); // El precio mínimo de las otras tiendas
             
