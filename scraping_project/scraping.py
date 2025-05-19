@@ -4,12 +4,10 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-"""from woocommerce import API"""
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
-"""from sshtunnel import SSHTunnelForwarder"""
 import mysql.connector
 import os
-"""import mysql.connector"""
+
 
 #____________________________________________________________
 def normalizar_sku(sku):
@@ -21,10 +19,9 @@ def obtener_precio_tienda(driver,url, nombre_precio, sku):
         if url.startswith("https://www.elcorteingles"):
             sku = normalizar_sku(sku)
             driver.get(url+sku) 
-            #Si es el corte inglés busca tanto la parte entera como decimal
+            #Busca el precio dentro del elemento pasado por parametro.
             parte_entera = WebDriverWait(driver, 6).until(EC.presence_of_element_located((By.CLASS_NAME, nombre_precio))).text
-            parte_decimal = WebDriverWait(driver, 0).until(EC.presence_of_element_located((By.CLASS_NAME, 'price._big'))).find_elements(By.TAG_NAME, 'span')[1].text
-            precio = f'{parte_entera}.{parte_decimal}'
+            precio = parte_entera.replace('€', '').replace(',', '.').strip()
         elif url.startswith("https://www.amazon"):
             sku = normalizar_sku(sku)
             driver.get(url+sku) 
@@ -40,22 +37,10 @@ def obtener_precio_tienda(driver,url, nombre_precio, sku):
                 precio = precio_elemento.text.replace('\n', '.').strip()
                 precio = precio.replace(',', '.')
                 precio = precio.replace("€", "") 
-        elif url.startswith("https://www.carrefour"):
-            sku = normalizar_sku(sku)
-            driver.get(url+sku) 
-            #Comprobación de CARREFOUR cuando no ha encontrado el resultado devuelva el mensaje de error y no producto recomendado
-            mensaje = WebDriverWait(driver, 8).until(EC.presence_of_element_located((By.CLASS_NAME, "ebx-results-number"))).text
-            if mensaje == "Mostrando 1 resultados":
-                precio_elemento = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.CLASS_NAME, nombre_precio)))
-                precio = precio_elemento.text.replace('\n', '.').strip()
-                precio = precio.replace(',', '.')
-                precio = precio.replace("€", "")
-            else:
-                precio = "No encontrado" 
         elif url.startswith("https://www.dynos"):
             #Comprobación de DYNOS quitando el 0 que sobra y obteniendo de forma personalizada el precio
             driver.get(url+sku) 
-            precio_elemento = WebDriverWait(driver, 0).until(EC.presence_of_element_located((By.CLASS_NAME, nombre_precio))).text
+            precio_elemento = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, nombre_precio))).text
             precio = precio_elemento.replace(',', '.')
             precio = precio.replace("€", "")
         elif url.startswith("https://comicstores"):
@@ -82,41 +67,6 @@ def obtener_precio_tienda(driver,url, nombre_precio, sku):
 
     return precio
 
-#________________________________________________________________________________________________________________________________________________________________
-#Conexión mediante túnel ssh
-"""
-# Configuración del túnel SSH
-ssh_host = '188.165.131.254'  # Dirección IP del servidor SSH
-ssh_username = 'todofriki'  # Nombre de usuario para la conexión SSH
-ssh_password = 'hGAixEOsHrpTZEP'  # Contraseña SSH (es más seguro usar una clave privada)
-#ssh_private_key = "/path/to/private/key"  # Ruta al archivo de clave privada, si usas una
-
-# Configuración de la base de datos
-db_host = 'localhost'  # Dirección del host de la base de datos, localhost si es local respecto al servidor SSH
-db_port = 3306         # Puerto de la base de datos
-db_user = 'todofriki'  # Usuario de la base de datos
-db_password = 'rjEFgqqu8tOXJpv' # Contraseña de la base de datos
-db_name = 'todofriki'  # Nombre de la base de datos
-
-# Crear el túnel SSH
-with SSHTunnelForwarder(
-    (ssh_host, 22),
-    ssh_username=ssh_username,
-    ssh_password=ssh_password,  # Comenta esta línea si usas una clave privada
-    # ssh_pkey=ssh_private_key, # Descomenta y usa esta línea si prefieres usar clave privada
-    remote_bind_address=(db_host, db_port)
-) as tunnel:
-    print('___________________T U N E L______________________')
-    # Conexión a la base de datos a través del túnel
-    connection = mysql.connector.connect(
-        host='127.0.0.1',  # Conectarse a localhost del túnel SSH
-        port=tunnel.local_bind_port,  # Usar el puerto asignado localmente por el túnel
-        user=db_user,
-        password=db_password,
-        database=db_name
-    )
-cursor = connection.cursor()
-"""
 #________________________________________________________________________________________________________________________________________________________________
 #Conexión a la BBDD y obtención de datos tienda 
 
@@ -182,71 +132,6 @@ for producto in all_products:
 print(f"Cantidad total de productos en stock: {len(all_products)}")
 """
 
-#_____________________________________________________________________________________________________________________________________________________________________
-# API para obtener datos de la web
-"""
-wcapi = API(
-    url="https://www.todofriki.com/",
-    consumer_key="ck_3bf24cf1d674461c64f1b0c26e5e0e105f55286a",
-    consumer_secret="cs_2add26f1d0c52e8c8afa0c1488660766311959df",
-    version="wc/v3"
-)
-"""
-#RECORRER PRODUCTOS
-#Todo
-"""
-all_products = []
-page_number = 1
-products_per_page = 100
-
-while True:
-    products = wcapi.get("products", params={"page": page_number, "per_page": products_per_page}).json()
-    if not products:
-        break
-
-    all_products.extend(products)
-    page_number += 1
-
-print("Cantidad total de productos obtenidos:", len(all_products))
-"""
-
-#Filtrado (ELEGIR DE PREDETERMINADO)
-"""
-all_products = []
-unique_ids = set()
-page_number = 1
-products_per_page = 100
-
-while True:
-    products = wcapi.get("products", params={"page": page_number, "per_page": products_per_page}).json()
-    if not products:
-        break
-
-    for product in products:
-        product_id = product["id"]
-        #filtra para que introduzca los productos con ID único una sola vez y que tenga stock, por lo tanto aparezca en la web
-        if product_id not in unique_ids and product.get("stock_status") == "instock":
-            unique_ids.add(product_id)
-            all_products.append(product)
-
-    page_number += 1
-
-print("Cantidad total de productos obtenidos:", len(all_products))
-"""
-#Mostrar 100 productos de la API CON FILTROS
-"""
-all_products = []
-unique_ids = set()
-page_number = 1
-products_per_page = 100
-products = wcapi.get("products", params={"page": page_number, "per_page": products_per_page}).json()
-for product in products:
-    product_id = product["id"]
-    if product_id not in unique_ids and product.get("stock_status") == "instock":
-        unique_ids.add(product_id)
-        all_products.append(product)
-print("Cantidad total de productos obtenidos:", len(all_products))
-"""
 
 #Ver todos los productos
 """
