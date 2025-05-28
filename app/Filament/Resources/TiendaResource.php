@@ -64,7 +64,7 @@ class TiendaResource extends Resource
                 EditAction::make()
                     ->icon('heroicon-o-pencil')
                     ->modalHeading('Editar Tienda')
-                    ->modalWidth('lg'), // Puedes personalizar el ancho del modal si es necesario
+                    ->modalWidth('lg'), 
                 DeleteAction::make()
                     ->icon('heroicon-o-trash')
             ])

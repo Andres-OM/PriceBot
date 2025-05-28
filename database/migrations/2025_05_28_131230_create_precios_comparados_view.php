@@ -17,7 +17,7 @@ class CreatePreciosComparadosView extends Migration
         SELECT 
             p.ean,
             MAX(p.nombre) AS nombre,
-            MAX(CASE WHEN p.tienda = 'Todofriki' THEN p.precio ELSE NULL END) AS precioTodofriki,
+            MAX(CASE WHEN p.tienda = 'Pricebot' THEN p.precio ELSE NULL END) AS precioPricebot,
             MIN(p.precio) AS precioMasBajo,
             (
                 SELECT tienda
@@ -38,7 +38,7 @@ class CreatePreciosComparadosView extends Migration
         GROUP BY 
             p.ean
         HAVING 
-            precioTodofriki > precioMasBajo;
+            precioPricebot > precioMasBajo;
         ");
     }
 

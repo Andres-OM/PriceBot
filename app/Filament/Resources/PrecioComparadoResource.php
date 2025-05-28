@@ -51,7 +51,7 @@ class PrecioComparadoResource extends Resource
                         $shortenedName = strlen($state) > 30 ? substr($state, 0, 30) . '...' : $state;
                         return $shortenedName;
                     }),
-                TextColumn::make('precioTodofriki')
+                TextColumn::make('precioPricebot')
                     ->label('Precio Pricebot')
                     ->sortable(),
                 TextColumn::make('precioMasBajo')
@@ -86,10 +86,10 @@ class PrecioComparadoResource extends Resource
                             ->where('meta_sku.meta_value', '=', $ean)
                             ->update(['wpfrk_postmeta.meta_value' => $precioMasBajo]);
             
-                        // Actualizar el precio en la tabla precios para la tienda Todofriki
+                        // Actualizar el precio en la tabla precios para la tienda Pricebot
                         $updatedPrecios = DB::table('precios')
                             ->where('ean', $ean)
-                            ->where('tienda', 'Todofriki')
+                            ->where('tienda', 'Pricebot')
                             ->whereDate('fecha_creacion', today())
                             ->update(['precio' => $precioMasBajo]);
             
@@ -112,7 +112,7 @@ class PrecioComparadoResource extends Resource
             ->headerActions([
                 Action::make('ajustarPreciosConjunto')
                     ->label('Ajustar todos los precios')
-                    ->tooltip('Los precios de TodoFriki cambian al precio más bajo comparado en caso de ser superior al precio de base.')
+                    ->tooltip('Los precios de Pricebot cambian al precio más bajo comparado en caso de ser superior al precio de base.')
                     ->action(function () {
                         $records = PrecioComparado::whereColumn('precioMasBajo', '>', 'precioBase')
                                                     ->get();
@@ -131,10 +131,10 @@ class PrecioComparadoResource extends Resource
                                 ->where('meta_sku.meta_value', '=', $ean)
                                 ->update(['wpfrk_postmeta.meta_value' => $precioMasBajo]);
             
-                            // Actualiza el precio en la tabla precios para la tienda Todofriki con fecha de creación de hoy
+                            // Actualiza el precio en la tabla precios para la tienda Pricebot con fecha de creación de hoy
                             DB::table('precios')
                                 ->where('ean', $ean)
-                                ->where('tienda', 'Todofriki')
+                                ->where('tienda', 'Pricebot')
                                 ->whereDate('fecha_creacion', today())
                                 ->update(['precio' => $precioMasBajo]);
                         }

@@ -13,7 +13,7 @@ class UsersTableSeeder extends Seeder
         DB::table('users')->insert([
             'name' => 'Admin',
             'email' => 'admin@example.com',
-            'password' => Hash::make('password'),  // Siempre hashea las contraseñas
+            'password' => Hash::make('password'),
             'created_at' => now(),
             'updated_at' => now()
         ]);

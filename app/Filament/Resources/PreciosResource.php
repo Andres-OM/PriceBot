@@ -78,23 +78,20 @@ class PreciosResource extends Resource
                         list($store, $price) = explode(': ', $line);
                         return [$store => floatval(trim($price))];
                     });
-            
-                    $todofrikiPrice = $prices->get('Todofriki', 0); // Obtener el precio de Todofriki, o 0 si no está definido
-                    $otherPrices = $prices->except(['Todofriki']); // Excluir a Todofriki para calcular los precios de otras tiendas
 
-                    // Cambiar nombre'Todofriki', lo renombramos a 'PriceBot' y guardamos su precio
-                    if ($prices->has('Todofriki')) {
-                        $priceBotPrice = $prices->get('Todofriki');
-                        $prices->put('PriceBot', $priceBotPrice); // Añadimos PriceBot con el mismo precio
-                        $prices->forget('Todofriki'); // Eliminamos la clave original 'Todofriki'
-                    }
+                    $priceBotPrice = $prices->get('Pricebot');
+
+                    $otherPrices = $prices->except(['Pricebot']);
                     
-                    $minPrice = $otherPrices->min(); // El precio mínimo de las otras tiendas
-            
-                    $html = $prices->map(function ($price, $store) use ($todofrikiPrice, $minPrice) {
-                        if ($store === 'Todofriki') {
+                    $minPrice = null;
+                    if (!$otherPrices->isEmpty()) {
+                        $minPrice = $otherPrices->min();
+                    }
+
+                    $html = $prices->map(function ($price, $store) use ($priceBotPrice, $minPrice, $otherPrices) {
+                        if ($store === 'Pricebot') {
                             // Cambiar el color basado en la comparación con otros precios
-                            $color = ($todofrikiPrice <= $minPrice) ? 'green' : 'red';
+                            $color = ($priceBotPrice <= $minPrice) ? 'green' : 'red';
                         } else {
                             $color = 'black'; // Los precios de otras tiendas siempre en negro
                         }

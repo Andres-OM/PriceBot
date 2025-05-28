@@ -10,9 +10,11 @@ import os
 
 
 #____________________________________________________________
+#Función para asegurar que el sku sea de 13 digitos
 def normalizar_sku(sku):
     return sku.zfill(13)
 #________________________________________________________________________________________________________________________________________________________________
+#Función para obtener el precio dependiendo de la tienda que esté analizando
 def obtener_precio_tienda(driver,url, nombre_precio, sku):
     print(url)
     try:
@@ -26,7 +28,7 @@ def obtener_precio_tienda(driver,url, nombre_precio, sku):
             sku = normalizar_sku(sku)
             driver.get(url+sku) 
             #Si el título tiene el mensaje de error de AMAZON devuelve no encontrado, pero si no realiza la búsqueda
-            mensaje = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.TAG_NAME, 'h1'))).text
+            mensaje = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.TAG_NAME, 'h1'))).text
             if mensaje == 'Utilice menos palabras clave o pruebe con estas':
                 precio = "No encontrado"
             else:
@@ -69,7 +71,7 @@ connection = mysql.connector.connect(
     host="127.0.0.1",
     user="root",
     password="1234",
-    database="todofriki"
+    database="pricebot"
 )
 
 #Obtención de tiendas
@@ -88,11 +90,6 @@ for row in tiendas:
     }
     tiendas_data.append(tienda_dict)
 
-#ver contenido de la tabla tiendas
-"""
-for row in tiendas:
-    print(row)
-"""
 #_______________________________________________________________________________________________________________________________________________________
 #Obtención de productos
 query = """
@@ -120,33 +117,19 @@ for row in productos:
         "precio": precio
     })
 
-# Imprimir detalles de los productos
-"""
-for producto in all_products:
-    print(f"Producto: {producto['nombre']}, SKU: {producto['sku']}, Precio: {producto['precio']}")
-print(f"Cantidad total de productos en stock: {len(all_products)}")
-"""
-
-
-#Ver todos los productos
-"""
-for product in all_products:
-    #listaprecios = obtener_precio_tienda((tiendas[3], tiendas[4], tiendas[5], product["sku"]))
-    #print(f'El precio del producto "{ean}" en Amazon es: {precio_amazon}')
-        print("Cantidad total de productos obtenidos:", len(all_products))
-        print("Nombre del producto:", product["name"])
-        print("Precio del producto:", product["price"])
-        print("EAN del producto:", product["sku"])
-        #Mostrar todos los campos
-        for key, value in product.items():
-            print(f"{key}: {value}")
-        print("-------------------------------------")
-"""
-
+#Navegador
+options = webdriver.ChromeOptions()
+options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36") # User agent más reciente
+options.add_argument("--disable-blink-features=AutomationControlled")
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option('useAutomationExtension', False)
+driver = webdriver.Chrome(options=options)
+driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 #_____________________________________________________________________________________________________________________________________________________________________
 #Busqueda de precios
 
 for product in all_products:
+    #Recorre los productos para buscar el sku y ejecutar el navegador con la función para buscar el precio.
     try:
         print(f"(SKU: {product['sku']}, Producto: {product['nombre']})")
         for tienda in tiendas_data:
@@ -155,6 +138,7 @@ for product in all_products:
             nombre_precio = tienda["nombrePrecio"]
             numero_ean= product['sku']
             nombre_producto = product['nombre']
+            """
             #_____________________________________________________________________________________________________________________________________________________________________
             #Configuración de navegador
             options = webdriver.ChromeOptions()
@@ -162,6 +146,9 @@ for product in all_products:
             driver = webdriver.Chrome(options=options)
             precio_producto = obtener_precio_tienda(driver,url_tienda, nombre_precio, numero_ean)
             driver.quit
+            """
+            precio_producto = obtener_precio_tienda(driver, url_tienda, nombre_precio, numero_ean)
+            #Inserta los datos en la base de datos
             if precio_producto != "No encontrado":
                 cursor.execute(
                     "INSERT INTO precios (ean, nombre, tienda, precio, fecha_creacion) "
@@ -173,7 +160,7 @@ for product in all_products:
                 "INSERT INTO precios (ean, nombre, tienda, precio, fecha_creacion) "
                 "VALUES (%s, %s, %s, %s, CURDATE()) "
                 "ON DUPLICATE KEY UPDATE precio = VALUES(precio), nombre = VALUES(nombre)",
-                (numero_ean, nombre_producto, 'Todofriki', product["precio"]))
+                (numero_ean, nombre_producto, 'Pricebot', product["precio"]))
                 connection.commit()
                 
             print(f"Precio en {nombre_tienda}: {precio_producto}")
@@ -182,17 +169,6 @@ for product in all_products:
         print(f"Error al obtener el precio del producto: {e}")
         continue 
 
-#Prueba individual
-"""
-options = webdriver.ChromeOptions()
-options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
-driver = webdriver.Chrome(options=options)
-url_tienda = 'https://www.amazon.es/s?k='
-nombre_precio = 'a-price'
-sku_producto = '5702017419640'
-precio_funcionGeneral = obtener_precio_tienda(driver,url_tienda, nombre_precio, sku_producto)
-print(f'El precio del producto "{sku_producto}" en la tienda es: {precio_funcionGeneral}')
-"""
 
 #Cerrar navegador,cursor y conexión mysql
 driver.quit()
