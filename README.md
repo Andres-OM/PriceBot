@@ -10,7 +10,7 @@ Asegúrese de tener instalados los siguientes componentes en su sistema:
     *   Descargar desde: [PHP Archives](https://windows.php.net/downloads/releases/archives/) (versión 8.1.0).
     *   **Configuración del PATH:** Añadir la ruta a la carpeta de PHP (ej. `C:\php-8.1.0`) a la variable de entorno PATH de su sistema.
     *   **Archivo `php.ini`:**
-        1.  En su carpeta de instalación de PHP, elimine o renombre el archivo `php.ini-development`.
+        1.  En su carpeta de instalación de PHP, elimine el archivo `php.ini-development`.
         2.  Copie el archivo `php.ini` que se encuentra en la raíz de este proyecto a su carpeta de instalación de PHP. Este archivo ya tiene las extensiones necesarias para Laravel habilitadas.
 
 *   **Node.js (versión LTS):**
@@ -24,7 +24,7 @@ Asegúrese de tener instalados los siguientes componentes en su sistema:
         *   `C:\Users\andre\AppData\Local\Programs\Python\Python313\Scripts` (ruta a pip)
 
 *   **MySQL (Servidor de Base de Datos):**
-    *   Es necesario MySQL Workbench: [mysql] (https://dev.mysql.com/downloads/workbench/).
+    *   Es necesario MySQL Workbench: [mysql](https://dev.mysql.com/downloads/workbench/).
 
 *   **Git:**
     *   Necesario para clonar el repositorio. Descargar desde: [Git SCM](https://git-scm.com/downloads).
@@ -102,5 +102,5 @@ Asegúrese de tener instalados los siguientes componentes en su sistema:
 
 **Credenciales de Acceso:**
 
-*   **Usuario:** `admin@ejample.es`
+*   **Usuario:** `admin@example.com`
 *   **Contraseña:** `password`
