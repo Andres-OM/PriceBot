@@ -2,28 +2,20 @@
 
 PriceBot es una aplicación web que permite recopilar los precios de productos de tiendas online y compararlos con los de la competencia para ayudar a ajustar los precios de una tienda propia y ser competitivo en el mercado.
 
-## Despliegue de la Aplicación Web
-
-Siga estos pasos para configurar y ejecutar el proyecto PriceBot en su entorno local.
-
 ### 1. Requisitos Previos
 
 Asegúrese de tener instalados los siguientes componentes en su sistema:
 
-*   **PHP (versión 8.1.0 o superior):**
-    *   Descargar desde: [PHP Archives](https://windows.php.net/downloads/releases/archives/) (buscar la versión 8.1.x).
+*   **PHP (versión 8.1.0):**
+    *   Descargar desde: [PHP Archives](https://windows.php.net/downloads/releases/archives/) (versión 8.1.0).
     *   **Configuración del PATH:** Añadir la ruta a la carpeta de PHP (ej. `C:\php-8.1.0`) a la variable de entorno PATH de su sistema.
     *   **Archivo `php.ini`:**
         1.  En su carpeta de instalación de PHP, elimine o renombre el archivo `php.ini-development`.
         2.  Copie el archivo `php.ini` que se encuentra en la raíz de este proyecto a su carpeta de instalación de PHP. Este archivo ya tiene las extensiones necesarias para Laravel habilitadas.
 
-*   **Node.js (versión LTS recomendada):**
+*   **Node.js (versión LTS):**
     *   Descargar desde: [Node.js Oficial](https://nodejs.org/es).
     *   Durante la instalación, asegúrese de que Node.js y npm se añadan al PATH. `npm` se instala automáticamente con Node.js.
-
-*   **Composer (Gestor de dependencias PHP):**
-    *   Descargar e instalar desde: [GetComposer.org](https://getcomposer.org/download/).
-    *   Durante la instalación, vincúlelo con su ejecutable de PHP 8.1.x.
 
 *   **Python (versión 3.x):**
     *   Descargar desde: [Python.org Downloads](https://www.python.org/downloads/).
@@ -32,8 +24,7 @@ Asegúrese de tener instalados los siguientes componentes en su sistema:
         *   `C:\Users\andre\AppData\Local\Programs\Python\Python313\Scripts` (ruta a pip)
 
 *   **MySQL (Servidor de Base de Datos):**
-    *   Necesita una instancia de MySQL corriendo (puede ser XAMPP, Laragon, WAMP, MAMP, o una instalación directa de MySQL Community Server).
-    *   Se requiere una herramienta para gestionar la base de datos (MySQL Workbench, HeidiSQL, DBeaver, phpMyAdmin, etc.).
+    *   Es necesario MySQL Workbench: [mysql] (https://dev.mysql.com/downloads/workbench/).
 
 *   **Git:**
     *   Necesario para clonar el repositorio. Descargar desde: [Git SCM](https://git-scm.com/downloads).
@@ -54,23 +45,18 @@ Asegúrese de tener instalados los siguientes componentes en su sistema:
     ```bash
     composer install
     ```
-
-3.  **Configurar el Archivo de Entorno:**
-    Copie el archivo de ejemplo y configúrelo:
     ```bash
-    copy .env.example .env
-    ```
-    Edite el archivo `.env` con sus credenciales de base de datos (`DB_DATABASE=pricebot`, `DB_USERNAME`, `DB_PASSWORD`, etc.), `APP_NAME=PriceBot`, y otras configuraciones necesarias.
-
-4.  **Generar Clave de Aplicación:**
-    ```bash
-    php artisan key:generate
+    npm install
     ```
 
-5.  **Configurar la Base de Datos:**
+3.  **Configurar la Base de Datos:**
+
+    *   Edita el archivo .env para que corresponda con sus credenciales de base de datos (B_DATABASE=pricebot, DB_USERNAME, DB_PASSWORD, etc.)
+
+4.  **Configurar la Base de Datos:**
     *   Ejecute el script `PriceBot.sql` (incluido en el proyecto) usando su herramienta de gestión de MySQL. Este script creará la base de datos `pricebot` (si no existe) y las tablas iniciales necesarias, incluyendo datos de ejemplo para las tablas `wpfrk_posts` y `wpfrk_postmeta`.
 
-6.  **Ejecutar Migraciones y Seeders de Laravel:**
+5.  **Ejecutar Migraciones y Seeders de Laravel:**
     Esto aplicará cualquier migración adicional de Laravel y poblará las tablas con datos de los seeders (como tiendas y el usuario administrador).
     ```bash
     php artisan migrate
@@ -78,12 +64,9 @@ Asegúrese de tener instalados los siguientes componentes en su sistema:
     ```
     *Nota: Si el script `PriceBot.sql` ya creó todas las tablas, `php artisan migrate` podría indicar "Nothing to migrate". Si desea una recreación completa basada en las migraciones de Laravel, asegúrese de que la base de datos esté vacía de tablas de la aplicación antes de `migrate` y use `php artisan migrate:fresh --seed`.*
 
-7.  **Instalar Dependencias JavaScript y Compilar Assets:**
-    ```bash
-    npm install
-    npm run dev
-    ```
-    (Deje `npm run dev` corriendo en una terminal si usa Vite con HMR, y abra una nueva para el siguiente paso).
+6.  **Insertar datos de ejemplo**
+    Ejecuta el script `datosEjemplo.sql` para añadir los precios de prueba.
+
 
 ### 3. Configuración y Ejecución del Script de Scraping (Python)
 
@@ -98,15 +81,11 @@ Asegúrese de tener instalados los siguientes componentes en su sistema:
     pip install selenium mysql-connector-python webdriver-manager
     ```
 
-3.  **Configurar ChromeDriver:**
-    *   El script está configurado para usar `webdriver-manager`, que gestionará ChromeDriver automáticamente.
-    *   Alternativamente, puede descargar `chromedriver.exe` compatible con su versión de Chrome, colocarlo en la subcarpeta `chromedriver-win64` (incluida en el proyecto) y ajustar el script si no desea usar `webdriver-manager`.
-
 4.  **Ajustar Conexión a Base de Datos en `scraping.py`:**
     Verifique que la conexión a la base de datos dentro del archivo `scraping.py` apunte a su base de datos local `pricebot` configurada en el paso 2.3.
 
 5.  **Ejecutar el Script de Scraping:**
-    *   Asegúrese de que VS Code (o el editor que use) confíe en la carpeta del proyecto para evitar el "Restricted Mode".
+    *   Asegúrese de que VS Code (o el editor que use) confíe en la carpeta del proyecto para evitar el "Restricted Mode". Ejecutelo por comando o desde Visual Studio u otro entorno de desarrollo
     *   Ejecute el script:
         ```bash
         python scraping.py
@@ -115,8 +94,7 @@ Asegúrese de tener instalados los siguientes componentes en su sistema:
 
 ### 4. Iniciar la Aplicación Web PriceBot
 
-1.  **Asegúrese de que `npm run dev` esté corriendo** (en una terminal separada, si es necesario).
-2.  En otra terminal, desde la raíz del proyecto `PriceBot`, inicie el servidor de Laravel:
+1.  En una terminal, desde la raíz del proyecto `PriceBot`, inicie el servidor de Laravel:
     ```bash
     php artisan serve
     ```
